@@ -1,7 +1,8 @@
-compnet-email-classifier
+Compnet-email-classifier
 ========================
 
 Email classifier for CompNet hackathon.
+
 
 
 
