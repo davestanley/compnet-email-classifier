@@ -6,6 +6,7 @@ Created on Sat May 10 11:44:36 2014
 """
 import pdb
 import nltk
+import numpy as np
 from nltk.corpus import wordnet
 from nltk.tag import pos_tag
 
@@ -20,7 +21,9 @@ def get_features(data_words,feature_words,normalize_on):
         for feature in feature_words:
             curr_featurevector.append(email_lcase.count(feature.lower()))
         if normalize_on:
+#            pdb.set_trace()
             curr_featurevector = [1.0 * cfve / len(email_lcase) for cfve in curr_featurevector] # Element-wise division
+#            curr_featurevector = [1.0 * cfve / 0.3 for cfve in curr_featurevector] # Element-wise division
         data_features.append(curr_featurevector)
     return data_features
 
@@ -95,4 +98,9 @@ def random_pipelist(source,dest):   # Takes a random element from one list and a
     dest.append(source[random_index])
     source.pop(random_index)
 
+def myzscore(x,a):
+    from scipy.stats import mstats
+    y = mstats.zscore(x,a)
+    y[np.isnan(y)] = 0
+    return y
 

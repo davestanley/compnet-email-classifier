@@ -9,6 +9,7 @@ Created on Sat May 10 11:47:08 2014
 import json
 import nltk
 import copy
+import os
 
 #Functions
 def body_html_merge_raw(uin):
@@ -29,8 +30,15 @@ def body_html_merge(uin):
     uin['bodyHtml'] = None
 
 
+
+# IMPORTANT - change to working code directory!
+currdir = '/Users/davestanley/src/compnet-email-classifier'
+os.chdir(currdir)
+data_open = os.path.join(currdir,'data','ham','neurotalk-emails.json')
+data_save = os.path.join(currdir,'data','spam','neurotalk-emails_merged.json')
+
 #Load JSON data
-json_data=open('./neurotalk-emails.json','r')
+json_data=open(data_open,'r')
 data = json.load(json_data)
 #pprint(data)
 json_data.close()
@@ -44,7 +52,7 @@ for ind in range(Nemails):
     body_html_merge(data_clean[ind])
 
 
-json_data_merged=open('./neurotalk-emails_merged.json','w')
+json_data_merged=open(data_save,'w')
 json.dump(data_clean,json_data_merged)
 
 

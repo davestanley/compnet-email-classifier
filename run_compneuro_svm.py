@@ -10,18 +10,26 @@ import collections
 import numpy as np
 import json
 from supporting_funcs import *
+import os
+
+# IMPORTANT - change to working code directory!
+currdir = '/Users/davestanley/src/compnet-email-classifier'
+os.chdir(currdir)
+filename_ham = os.path.join(currdir,'data','ham','neurotalk-emails.json')
+filename_spam_nnt = os.path.join(currdir,'data','spam','non-neurotalk-emails.json')
+filename_spam_nt = os.path.join(currdir,'data','spam','non-talk-emails.json')
 
 
 # Parameters
-Nfeature_words = 40
-fract_training = 0.6
-fract_cv = 0.2
-fract_test = 1 - fract_training - fract_cv
-normalize_on = 0    # =1 to normalize feature vector values
+Nfeature_words = 10
+fract_training = 0.6    # Training
+fract_cv = 0.0  # Cross validation (not used)
+fract_test = 1 - fract_training - fract_cv  # Testing
+normalize_on = 1    # =1 to normalize feature vector values
 
 
 # Extract the set of words in each email
-data_words = extract_words('neurotalk-emails.json')
+data_words = extract_words(filename_ham)
 Nemails = len(data_words)
 Nemails_training = int(floor(Nemails * fract_training))
 
@@ -35,7 +43,6 @@ for ind in range(Nemails_training):
 
 # Use this (cnt) to generate a list of the N most common words
 #   These will be our feature words
-#   Need to update this to sample words from non-neuro datasets as well.
 feature_vector = list()
 for words in cnt.most_common(Nfeature_words):
     feature_vector.append(words[0])
@@ -56,8 +63,8 @@ data_features = get_features(data_words,feature_vector,normalize_on)
 add_label(data_features, 1) # add 1 for correct (neuro talk)
     
 # Get words from other example emails
-nnt_words = extract_words('./data/spam/non-neurotalk-emails.json')
-nt_words = extract_words('./data/spam/non-talk-emails.json')
+nnt_words = extract_words(filename_spam_nnt)  # Non neuro talks
+nt_words = extract_words(filename_spam_nt)  # Non talks
 
 # Get features from other example emails
 nnt_features = get_features(nnt_words,feature_vector,normalize_on)
@@ -116,8 +123,15 @@ ytr = np.array(ytr)
 ycv = np.array(ycv)
 yts = np.array(yts)
 train_features = np.array(train_features)
-nnt_features = np.array(nnt_features)
-nt_features = np.array(nt_features)
+cv_features = np.array(cv_features)
+test_features = np.array(test_features)
+
+# Do zscore
+train_features2 = myzscore(train_features,1)
+#cv_features2 = myzscore(cv_features,1)
+test_features2 = myzscore(test_features,1)
+
+
 
 # Run SVM
 from sklearn import svm, datasets
@@ -125,11 +139,10 @@ from sklearn import svm, datasets
 # we create an instance of SVM and fit out data. We do not scale our
 # data since we want to plot the support vectors
 C = 1.0  # SVM regularization parameter
-svc = svm.SVC(kernel='linear', C=C).fit(train_features, ytr)
+svc = svm.SVC(kernel='linear', C=C).fit(train_features2, ytr)
 
-out = svc.predict(train_features)
-out = svc.predict(test_features)
-
+out = svc.predict(train_features2)
+out = svc.predict(test_features2)
 
 
 # Stats
@@ -138,15 +151,17 @@ fps = sum((out == 1) .__and__ (yts == 0))
 fns = sum((out == 0) .__and__ (yts == 1))
 tns = sum((out == 0) .__and__ (yts == 0))
 
-sensitivity = tps / (tps + fns)
-specificity = tns / (fps + tns)
+sensitivity = 1.0 * tps / (tps + fns)
+specificity = 1.0 * tns / (fps + tns)
 
 print "Sensitivity " + repr(sensitivity)
 print "Specificity " + repr(specificity)
 
 
-
-
-
-
+#Expected output - will vary depending on the random training dataset that is chosen
+#Extracted 132 emails.
+#Extracted 10 emails.
+#Extracted 19 emails.
+#Sensitivity 0.90566037735849059
+#Specificity 0.66666666666666663
 
