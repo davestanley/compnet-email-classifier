@@ -9,6 +9,7 @@ import nltk
 import numpy as np
 from nltk.corpus import wordnet
 from nltk.tag import pos_tag
+from bs4 import BeautifulSoup
 
 
 # General functions
@@ -42,7 +43,7 @@ def pop_labels(data_features):
 ##Email Functions
 def tokenize_email(uin):
     if uin is not None:
-        uin_clean = nltk.clean_html(uin)
+        uin_clean = BeautifulSoup(uin, 'html.parser').get_text()
         uin_token = nltk.word_tokenize(uin_clean)
         return uin_token
             #nltk crashes when uin is type None; therefore ignore

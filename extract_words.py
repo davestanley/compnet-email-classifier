@@ -29,7 +29,7 @@ def extract_words(filename):
         body_html_merge(data[ind])
     
     
-    print "Extracted " + str(Nemails) + " emails."
+    print ("Extracted " + str(Nemails) + " emails.")
     #Get a list of words for each email
     data_words = list()
     for ind in range(Nemails):

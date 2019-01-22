@@ -13,7 +13,7 @@ from supporting_funcs import *
 import os
 
 # IMPORTANT - change to working code directory!
-currdir = '/Users/davestanley/src/compnet-email-classifier'
+currdir = os.path.join(os.getenv("HOME"),'src','compnet-email-classifier')
 os.chdir(currdir)
 filename_ham = os.path.join(currdir,'data','ham','neurotalk-emails.json')
 filename_spam_nnt = os.path.join(currdir,'data','spam','non-neurotalk-emails.json')
@@ -31,7 +31,7 @@ normalize_on = 1    # =1 to normalize feature vector values
 # Extract the set of words in each email
 data_words = extract_words(filename_ham)
 Nemails = len(data_words)
-Nemails_training = int(floor(Nemails * fract_training))
+Nemails_training = int(np.floor(Nemails * fract_training))
 
 
 # Count the number of occurrences of all words in all emails
@@ -54,8 +54,9 @@ feature_vector = brain_words + feature_vector     # our final feature vector
 feature_vector = convert2stems(feature_vector)
 
 # Save our feature word vector for future usage
-json_featurevector=open('./feature_vector.json','wb')
-json.dump(feature_vector,json_featurevector)
+with open("feature_vector.json", "w") as json_featurevector: 
+     json.dump(feature_vector, json_featurevector)
+# Note, apparently this code will automatically close the file. See here: https://stackoverflow.com/questions/8011797/open-read-and-close-a-file-in-1-line-of-code
 
 
 #Get a feature vector for each email
@@ -154,8 +155,8 @@ tns = sum((out == 0) .__and__ (yts == 0))
 sensitivity = 1.0 * tps / (tps + fns)
 specificity = 1.0 * tns / (fps + tns)
 
-print "Sensitivity " + repr(sensitivity)
-print "Specificity " + repr(specificity)
+print ("Sensitivity " + repr(sensitivity))
+print ("Specificity " + repr(specificity))
 
 
 #Expected output - will vary depending on the random training dataset that is chosen
